@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PS5 Klub</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: #0f0f1a;
+    color: #e2e8f0;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #38bdf8;
+    font-size: 24px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    background: #1e1e2e;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .top-stat .val { font-size: 20px; font-weight: bold; color: #22d3ee; text-align:center; }
+  .top-stat .lbl { font-size: 11px; color: #64748b; letter-spacing: 1px; text-align:center; }
+
+  .btn-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+  }
+
+  .btn-green { background: #16a34a; color: #fff; }
+  .btn-red   { background: #dc2626; color: #fff; }
+  .btn-gray  { background: #334155; color: #e2e8f0; }
+  .btn-yellow{ background: #d97706; color: #fff; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    background: #1e1e2e;
+    border: 2px solid #2d2d44;
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .card.active { border-color: #22c55e; }
+  .card.paused { border-color: #f59e0b; }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .card-num { font-size: 15px; font-weight: bold; color: #38bdf8; }
+
+  .dot { width:10px; height:10px; border-radius:50%; background:#334155; display:inline-block; }
+  .dot.green  { background:#22c55e; box-shadow:0 0 8px #22c55e; }
+  .dot.yellow { background:#f59e0b; }
+
+  .timer {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    color: #fff;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    font-family: monospace;
+  }
+
+  .earned {
+    text-align: center;
+    font-size: 15px;
+    color: #22d3ee;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: monospace;
+  }
+
+  .rate-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .rate-row input {
+    flex: 1;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 5px;
+    padding: 6px 8px;
+    color: #e2e8f0;
+    font-size: 13px;
+    outline: none;
+    font-family: monospace;
+  }
+
+  .rate-row select {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 5px;
+    padding: 6px 4px;
+    color: #e2e8f0;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .card-btns { display: flex; gap: 6px; }
+  .card-btns button { flex: 1; padding: 8px 4px; font-size: 12px; }
+
+  /* MODAL */
+  #modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #modal.open { display: flex; }
+
+  .mbox {
+    background: #1e1e2e;
+    border: 2px solid #38bdf8;
+    border-radius: 12px;
+    padding: 28px;
+    width: 90%;
+    max-width: 340px;
+    text-align: center;
+  }
+
+  .mbox h2 { color: #38bdf8; margin-bottom: 6px; }
+  .mseat { color: #94a3b8; font-size: 13px; margin-bottom: 14px; }
+  .mamount { font-size: 42px; font-weight: bold; color: #22d3ee; font-family: monospace; }
+  .mcur { color: #64748b; font-size: 12px; margin-bottom: 14px; }
+
+  .minfo {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  .mrow {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #1e2e2e;
+    font-size: 13px;
+  }
+  .mrow:last-child { border-bottom: none; }
+  .mrow .ml { color: #64748b; }
+  .mrow .mr { color: #e2e8f0; font-weight: bold; }
+
+  .mbtns { display: flex; gap: 10px; }
+  .mbtns button { flex: 1; padding: 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>🎮 PS5 KLUB</h1>
+
+<div class="top-bar">
+  <div class="top-stat">
+    <div class="val" id="h-active">0</div>
+    <div class="lbl">FAOL JOY</div>
+  </div>
+  <div class="top-stat">
+    <div class="val" id="h-live">0 so'm</div>
+    <div class="lbl">JORIY SESSIYALAR</div>
+  </div>
+  <div class="top-stat">
+    <div class="val" id="h-total">0 so'm</div>
+    <div class="lbl">BUGUN JAMI</div>
+  </div>
+</div>
+
+<div class="btn-bar">
+  <button class="btn-green" id="btnStartAll">▶ Hammasini boshlash</button>
+  <button class="btn-red"   id="btnStopAll">⏹ Hammasini to'xtatish</button>
+  <button class="btn-gray"  id="btnKabina">Hammasi = Kabina (30k)</button>
+  <button class="btn-gray"  id="btnZal">Hammasi = Zal (25k)</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div id="modal">
+  <div class="mbox">
+    <h2>💰 TO'LOV</h2>
+    <div class="mseat" id="m-seat"></div>
+    <div class="mamount" id="m-amount">0</div>
+    <div class="mcur">so'm</div>
+    <div class="minfo">
+      <div class="mrow"><span class="ml">Vaqt</span><span class="mr" id="m-time"></span></div>
+      <div class="mrow"><span class="ml">Narx</span><span class="mr" id="m-rate"></span></div>
+      <div class="mrow"><span class="ml">Tur</span><span class="mr" id="m-type"></span></div>
+    </div>
+    <div class="mbtns">
+      <button class="btn-green" id="btnConfirm">✓ Tasdiqlash</button>
+      <button class="btn-gray"  id="btnCancel">Bekor</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var N = 13;
+  var seats = [];
+  var dailyTotal = 0;
+  var stopId = -1;
+
+  // init
+  for (var i = 0; i < N; i++) {
+    seats.push({
+      id: i + 1,
+      type: i < 9 ? 'kabina' : 'zal',
+      rate: i < 9 ? 30000 : 25000,
+      running: false,
+      paused: false,
+      startTs: 0,
+      accSecs: 0
+    });
+  }
+
+  function getSecs(s) {
+    var n = s.accSecs;
+    if (s.running && s.startTs) n += Math.floor((Date.now() - s.startTs) / 1000);
+    return n;
+  }
+
+  function earned(s) { return (getSecs(s) / 3600) * s.rate; }
+
+  function fmt(sec) {
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    var s = sec % 60;
+    return p(h) + ':' + p(m) + ':' + p(s);
+  }
+
+  function p(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function money(n) {
+    return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function buildGrid() {
+    var g = document.getElementById('grid');
+    g.innerHTML = '';
+    for (var i = 0; i < seats.length; i++) {
+      var s = seats[i];
+      var div = document.createElement('div');
+      div.id = 'card-' + s.id;
+      div.className = 'card' + (s.running ? ' active' : s.paused ? ' paused' : '');
+
+      var dotCls = s.running ? 'green' : s.paused ? 'yellow' : '';
+      var zalNum = s.type === 'zal' ? (s.id - 9) : 0;
+      var typeLabel = s.type === 'kabina' ? 'Kabina' : 'Zal' + zalNum;
+      var html = '';
+
+      html += '<div class="card-top">';
+      html += '<span class="card-num">JOY #' + s.id + ' <span style="color:#94a3b8;font-size:11px">' + typeLabel + '</span></span>';
+      html += '<span class="dot ' + dotCls + '"></span>';
+      html += '</div>';
+
+      html += '<div class="timer" id="t' + s.id + '">' + fmt(getSecs(s)) + '</div>';
+      html += '<div class="earned" id="e' + s.id + '">' + money(earned(s)) + ' so\'m</div>';
+
+      if (!s.running && !s.paused) {
+        html += '<div class="rate-row">';
+        html += '<input type="number" id="ri' + s.id + '" value="' + s.rate + '" min="0" step="1000">';
+        html += '<select id="rt' + s.id + '">';
+        html += '<option value="kabina"' + (s.type === 'kabina' ? ' selected' : '') + '>Kabina</option>';
+        html += '<option value="zal"'    + (s.type === 'zal'    ? ' selected' : '') + '>Zal</option>';
+        html += '</select></div>';
+        html += '<div class="card-btns"><button class="btn-green" data-start="' + s.id + '">▶ Boshlash</button></div>';
+      } else {
+        html += '<div style="text-align:center;color:#64748b;font-size:11px;margin-bottom:8px">' + money(s.rate) + ' so\'m/soat</div>';
+        html += '<div class="card-btns">';
+        html += '<button class="btn-red"    data-stop="'  + s.id + '">⏹ To\'xtat</button>';
+        html += '<button class="btn-yellow" data-pause="' + s.id + '">' + (s.paused ? '▶ Davom' : '⏸ Pauza') + '</button>';
+        html += '</div>';
+      }
+
+      div.innerHTML = html;
+      g.appendChild(div);
+    }
+  }
+
+  function tick() {
+    var liveSum = 0, activeN = 0;
+    for (var i = 0; i < seats.length; i++) {
+      var s = seats[i];
+      if (s.running || s.paused) liveSum += earned(s);
+      if (s.running) activeN++;
+      var te = document.getElementById('t' + s.id);
+      var ee = document.getElementById('e' + s.id);
+      if (te) te.textContent = fmt(getSecs(s));
+      if (ee) ee.textContent = money(earned(s)) + ' so\'m';
+    }
+    document.getElementById('h-active').textContent = activeN;
+    document.getElementById('h-live').textContent = money(liveSum) + ' so\'m';
+    document.getElementById('h-total').textContent = money(dailyTotal + liveSum) + ' so\'m';
+  }
+
+  function getSeat(id) {
+    for (var i = 0; i < seats.length; i++) if (seats[i].id === id) return seats[i];
+    return null;
+  }
+
+  function doStart(id) {
+    var s = getSeat(id);
+    if (!s || s.running) return;
+    var ri = document.getElementById('ri' + id);
+    var rt = document.getElementById('rt' + id);
+    if (ri) s.rate = parseInt(ri.value) || s.rate;
+    if (rt) s.type = rt.value;
+    s.running = true; s.paused = false;
+    s.startTs = Date.now(); s.accSecs = 0;
+    buildGrid();
+  }
+
+  function doPause(id) {
+    var s = getSeat(id); if (!s) return;
+    if (s.running) {
+      s.accSecs += Math.floor((Date.now() - s.startTs) / 1000);
+      s.running = false; s.paused = true;
+    } else if (s.paused) {
+      s.startTs = Date.now(); s.running = true; s.paused = false;
+    }
+    buildGrid();
+  }
+
+  function openModal(id) {
+    var s = getSeat(id); if (!s) return;
+    stopId = id;
+    var mTypeLabel = s.type === 'kabina' ? 'Kabina' : 'Zal' + (s.id - 9);
+    document.getElementById('m-seat').textContent = 'JOY #' + s.id + ' · ' + mTypeLabel;
+    document.getElementById('m-amount').textContent = money(earned(s));
+    document.getElementById('m-time').textContent = fmt(getSecs(s));
+    document.getElementById('m-rate').textContent = money(s.rate) + ' so\'m/soat';
+    document.getElementById('m-type').textContent = mTypeLabel;
+    document.getElementById('modal').className = 'open';
+  }
+
+  function closeModal() {
+    document.getElementById('modal').className = '';
+    stopId = -1;
+  }
+
+  function doConfirm() {
+    var s = getSeat(stopId); if (!s) return;
+    dailyTotal += earned(s);
+    s.running = false; s.paused = false; s.startTs = 0; s.accSecs = 0;
+    closeModal(); buildGrid();
+  }
+
+  // Events via delegation
+  document.getElementById('grid').addEventListener('click', function(e) {
+    var btn = e.target;
+    if (!btn || btn.tagName !== 'BUTTON') return;
+    var sid;
+    if (btn.dataset.start) { sid = parseInt(btn.dataset.start); doStart(sid); }
+    else if (btn.dataset.stop)  { sid = parseInt(btn.dataset.stop);  openModal(sid); }
+    else if (btn.dataset.pause) { sid = parseInt(btn.dataset.pause); doPause(sid); }
+  });
+
+  document.getElementById('btnStartAll').onclick = function() {
+    for (var i = 0; i < seats.length; i++) {
+      var s = seats[i];
+      if (!s.running && !s.paused) { s.running = true; s.startTs = Date.now(); s.accSecs = 0; }
+    }
+    buildGrid();
+  };
+
+  document.getElementById('btnStopAll').onclick = function() {
+    if (!confirm('Barcha seanslarn to\'xtatilsinmi?')) return;
+    for (var i = 0; i < seats.length; i++) {
+      var s = seats[i];
+      if (s.running || s.paused) { dailyTotal += earned(s); s.running = false; s.paused = false; s.startTs = 0; s.accSecs = 0; }
+    }
+    buildGrid();
+  };
+
+  document.getElementById('btnKabina').onclick = function() {
+    for (var i = 0; i < seats.length; i++) {
+      if (!seats[i].running && !seats[i].paused) { seats[i].type = 'kabina'; seats[i].rate = 30000; }
+    }
+    buildGrid();
+  };
+
+  document.getElementById('btnZal').onclick = function() {
+    for (var i = 0; i < seats.length; i++) {
+      if (!seats[i].running && !seats[i].paused) { seats[i].type = 'zal'; seats[i].rate = 25000; }
+    }
+    buildGrid();
+  };
+
+  document.getElementById('btnConfirm').onclick = doConfirm;
+  document.getElementById('btnCancel').onclick  = closeModal;
+  document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
+
+  buildGrid();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
