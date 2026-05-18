@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0f0f1a"/>
+  <rect x="40" y="40" width="432" height="432" rx="60" fill="#1e1e2e"/>
+  <text x="256" y="200" font-family="Arial" font-weight="900" font-size="130" fill="#38bdf8" text-anchor="middle">PS5</text>
+  <text x="256" y="320" font-family="Arial" font-weight="700" font-size="60" fill="#22d3ee" text-anchor="middle">KLUB</text>
+  <circle cx="256" cy="400" r="18" fill="#22c55e"/>
+</svg>
